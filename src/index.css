@@ -1,0 +1,213 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap");
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+==========================================================================
+【AI HANDOVER NOTE】
+1. DESIGN PHILOSOPHY:
+   - Documentation-First Clarity: 기술 문서의 가독성과 정보 계층을 최우선으로 하는 디자인
+   - Swiss Typography meets Korean: 엄격한 그리드 시스템과 한글 타이포그래피의 조화
+   - Code-Centric Layout: 코드 블록과 설정 파일이 주요 콘텐츠이므로 monospace 가독성 극대화
+   - Calm Blue Professionalism: 파란색 계열의 신뢰감 있는 기술 문서 스타일 (GitHub, VS Code 연상)
+
+2. TYPOGRAPHY:
+   - IBM Plex Sans: 기술 문서에 최적화된 humanist sans-serif, 한글과의 조화 우수
+   - Noto Sans KR: 한글 본문의 명확한 가독성, 다양한 weight 지원
+   - JetBrains Mono: 코드 블록 전용, ligature 지원, 0/O 구분 명확
+   - 한글 문서 특성상 line-height 1.7-1.8 권장 (영문 대비 높게)
+
+3. COLOR SYSTEM:
+   - Brand Primary (Blue 220°): GitHub/VS Code를 연상시키는 신뢰감 있는 파란색
+   - --brand → --primary (버튼, 링크), --accent (사이드바 활성), --ring (포커스)
+   - Success (Green 150°): 성공적인 배포 단계 표시
+   - Warning (Orange 50°): 주의사항, 트러블슈팅 섹션
+   - Destructive (Red 15°): 에러 메시지, 삭제 경고
+   - Muted tones: 코드 블록 배경, 사이드바 배경에 낮은 채도 사용
+
+4. USAGE GUIDE:
+   - Layout: Left sidebar navigation (280px) + Main content (max-width 900px centered)
+   - Sidebar: --sidebar-background with subtle border, active state uses --sidebar-accent
+   - Code blocks: --muted background with --muted-foreground, syntax highlighting via --chart colors
+   - Step indicators: --primary with numbered badges
+   - Tables: --border for grid lines, --card for row hover
+   - Korean text: Ensure 16px minimum font-size, 1.75 line-height
+   - Accessibility: All text meets WCAG AA (4.5:1 contrast), focus rings clearly visible
+==========================================================================
+*/
+
+:root {
+  /* Typography */
+  --font-sans: 'IBM Plex Sans', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Noto Sans KR', Consolas, Monaco, monospace;
+  
+  /* Radius */
+  --radius: 0.5rem;
+
+  /* Core UI Tokens */
+  --background: oklch(0.99 0.002 220);
+  --foreground: oklch(0.15 0.01 220);
+  --card: oklch(0.98 0.005 220);
+  --card-foreground: oklch(0.18 0.01 220);
+  --popover: oklch(0.99 0.002 220);
+  --popover-foreground: oklch(0.15 0.01 220);
+  --primary: oklch(0.52 0.18 220);
+  --primary-foreground: oklch(0.98 0.005 220);
+  --secondary: oklch(0.94 0.01 220);
+  --secondary-foreground: oklch(0.22 0.015 220);
+  --muted: oklch(0.96 0.008 220);
+  --muted-foreground: oklch(0.48 0.02 220);
+  --accent: oklch(0.93 0.025 220);
+  --accent-foreground: oklch(0.25 0.02 220);
+  --destructive: oklch(0.55 0.22 15);
+  --destructive-foreground: oklch(0.98 0.005 15);
+  --border: oklch(0.88 0.015 220);
+  --input: oklch(0.88 0.015 220);
+  --ring: oklch(0.52 0.18 220);
+  
+  /* Chart Tokens */
+  --chart-1: oklch(0.52 0.18 220);
+  --chart-2: oklch(0.58 0.16 280);
+  --chart-3: oklch(0.62 0.14 150);
+  --chart-4: oklch(0.60 0.18 50);
+  --chart-5: oklch(0.56 0.20 340);
+  
+  /* Sidebar Tokens */
+  --sidebar: oklch(0.97 0.006 220);
+  --sidebar-foreground: oklch(0.28 0.015 220);
+  --sidebar-primary: oklch(0.52 0.18 220);
+  --sidebar-primary-foreground: oklch(0.98 0.005 220);
+  --sidebar-accent: oklch(0.90 0.03 220);
+  --sidebar-accent-foreground: oklch(0.20 0.02 220);
+  --sidebar-border: oklch(0.90 0.012 220);
+  --sidebar-ring: oklch(0.52 0.18 220);
+}
+
+.dark {
+  --background: oklch(0.12 0.015 220);
+  --foreground: oklch(0.92 0.008 220);
+  --card: oklch(0.15 0.018 220);
+  --card-foreground: oklch(0.90 0.008 220);
+  --popover: oklch(0.13 0.016 220);
+  --popover-foreground: oklch(0.92 0.008 220);
+  --primary: oklch(0.62 0.20 220);
+  --primary-foreground: oklch(0.12 0.015 220);
+  --secondary: oklch(0.22 0.025 220);
+  --secondary-foreground: oklch(0.88 0.01 220);
+  --muted: oklch(0.20 0.020 220);
+  --muted-foreground: oklch(0.62 0.025 220);
+  --accent: oklch(0.28 0.035 220);
+  --accent-foreground: oklch(0.90 0.01 220);
+  --destructive: oklch(0.60 0.24 15);
+  --destructive-foreground: oklch(0.95 0.008 15);
+  --border: oklch(0.28 0.025 220);
+  --input: oklch(0.28 0.025 220);
+  --ring: oklch(0.62 0.20 220);
+  
+  /* Chart Tokens */
+  --chart-1: oklch(0.62 0.20 220);
+  --chart-2: oklch(0.65 0.18 280);
+  --chart-3: oklch(0.68 0.16 150);
+  --chart-4: oklch(0.66 0.20 50);
+  --chart-5: oklch(0.63 0.22 340);
+  
+  /* Sidebar Tokens */
+  --sidebar: oklch(0.14 0.017 220);
+  --sidebar-foreground: oklch(0.78 0.015 220);
+  --sidebar-primary: oklch(0.62 0.20 220);
+  --sidebar-primary-foreground: oklch(0.12 0.015 220);
+  --sidebar-accent: oklch(0.25 0.030 220);
+  --sidebar-accent-foreground: oklch(0.88 0.012 220);
+  --sidebar-border: oklch(0.24 0.022 220);
+  --sidebar-ring: oklch(0.62 0.20 220);
+}
+
+@theme inline {
+  /* Shadcn Core Mapping */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Charts Mapping */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Sidebar Mapping */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Typography */
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  /* Radius */
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    @apply scroll-smooth antialiased;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans min-h-screen;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+
+  code, pre {
+    @apply font-mono;
+  }
+
+  ::selection {
+    @apply bg-primary/20 text-primary;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/40;
+  }
+}
