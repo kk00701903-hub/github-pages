@@ -207,6 +207,7 @@ function cdnPrefixImages(): Plugin {
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
+  base: "/github-pages/",
   return {
     server: {
       host: "::",
