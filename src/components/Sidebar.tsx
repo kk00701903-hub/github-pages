@@ -4,7 +4,8 @@ import {
   Rocket, Lightbulb, Monitor, Github, Package,
   FileCode, Settings, GitBranch, Send, Table2,
   AlertTriangle, Menu, X, ChevronRight, Wand2,
-  RefreshCw, Edit, GitCommit, UploadCloud, Tag
+  RefreshCw, Edit, GitCommit, UploadCloud, Tag,
+  Workflow, GitCompare, FileCode2, ShieldCheck, CheckCircle
 } from "lucide-react";
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -23,6 +24,11 @@ const iconMap: Record<string, React.ReactNode> = {
   "git-commit":     <GitCommit size={15} />,
   "upload-cloud":   <UploadCloud size={15} />,
   tag:              <Tag size={15} />,
+  workflow:         <Workflow size={15} />,
+  "git-compare":    <GitCompare size={15} />,
+  "file-code-2":    <FileCode2 size={15} />,
+  "shield-check":   <ShieldCheck size={15} />,
+  "check-circle":   <CheckCircle size={15} />,
   table:            <Table2 size={15} />,
   "alert-triangle": <AlertTriangle size={15} />,
 };
@@ -42,7 +48,7 @@ export function Sidebar({ activeId, onNavigate }: SidebarProps) {
 
   const SidebarContent = () => (
     <nav className="flex flex-col gap-0.5 p-3">
-      {/* Logo area */}
+      {/* Logo */}
       <div className="mb-4 px-2 py-3 border-b border-sidebar-border">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
@@ -55,7 +61,6 @@ export function Sidebar({ activeId, onNavigate }: SidebarProps) {
         </div>
       </div>
 
-      {/* Part labels */}
       <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground px-2 mb-1 mt-1">개요</p>
       {navItems.slice(0, 3).map(item => (
         <NavBtn key={item.id} item={item} active={activeId === item.id} onClick={handleClick} />
@@ -79,8 +84,16 @@ export function Sidebar({ activeId, onNavigate }: SidebarProps) {
         <NavBtn key={item.id} item={item} active={activeId === item.id} onClick={handleClick} indent />
       ))}
 
+      <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground px-2 mb-1 mt-3">CI/CD 자동화</p>
+      {navItems.slice(15, 16).map(item => (
+        <NavBtn key={item.id} item={item} active={activeId === item.id} onClick={handleClick} />
+      ))}
+      {navItems.slice(16, 20).map(item => (
+        <NavBtn key={item.id} item={item} active={activeId === item.id} onClick={handleClick} indent />
+      ))}
+
       <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground px-2 mb-1 mt-3">참고</p>
-      {navItems.slice(15).map(item => (
+      {navItems.slice(20).map(item => (
         <NavBtn key={item.id} item={item} active={activeId === item.id} onClick={handleClick} />
       ))}
     </nav>
@@ -88,7 +101,6 @@ export function Sidebar({ activeId, onNavigate }: SidebarProps) {
 
   return (
     <>
-      {/* Mobile toggle button */}
       <button
         onClick={() => setOpen(!open)}
         className="fixed top-4 left-4 z-50 lg:hidden w-9 h-9 rounded-lg bg-primary text-primary-foreground flex items-center justify-center shadow-lg"
@@ -96,20 +108,14 @@ export function Sidebar({ activeId, onNavigate }: SidebarProps) {
         {open ? <X size={18} /> : <Menu size={18} />}
       </button>
 
-      {/* Mobile overlay */}
       {open && (
-        <div
-          className="fixed inset-0 z-40 bg-black/40 lg:hidden"
-          onClick={() => setOpen(false)}
-        />
+        <div className="fixed inset-0 z-40 bg-black/40 lg:hidden" onClick={() => setOpen(false)} />
       )}
 
-      {/* Mobile drawer */}
       <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-sidebar border-r border-sidebar-border overflow-y-auto transition-transform duration-300 lg:hidden ${open ? "translate-x-0" : "-translate-x-full"}`}>
         <SidebarContent />
       </aside>
 
-      {/* Desktop sidebar */}
       <aside className="hidden lg:block w-64 shrink-0 sticky top-0 h-screen overflow-y-auto bg-sidebar border-r border-sidebar-border">
         <SidebarContent />
       </aside>

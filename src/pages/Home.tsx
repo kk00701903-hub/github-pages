@@ -4,7 +4,224 @@ import {
   type SummaryRow,
 } from "@/components/DocBlocks";
 import { ConfigGenerator } from "@/components/ConfigGenerator";
-import { Monitor, FolderOpen, AlertTriangle, RefreshCw } from "lucide-react";
+import { Monitor, FolderOpen, AlertTriangle, RefreshCw, Workflow } from "lucide-react";
+import { useState, useCallback } from "react";
+
+/* ── YAML 코드블록 헬퍼 ── */
+type WRow = { num: number | string; jsx: React.ReactNode; hl?: "add" | "key" | "" };
+const yk  = (t: string) => <span className="text-sky-300">{t}</span>;
+const yv  = (t: string) => <span className="text-amber-300 font-bold">{t}</span>;
+const ya  = (t: string) => <span className="text-emerald-300 font-bold">{t}</span>;
+const yn  = (t: string) => <span className="text-slate-300">{t}</span>;
+
+const VITE_WORKFLOW_ROWS: WRow[] = [
+  { num:  1, jsx: <>{yk("name")}{yn(": ")}{yv("Deploy to GitHub Pages")}</> },
+  { num:  2, jsx: yn("") },
+  { num:  3, jsx: <>{yk("on")}{yn(":")}</> },
+  { num:  4, jsx: <>{yn("  ")}{yk("push")}{yn(":")}</> },
+  { num:  5, jsx: <>{yn("    ")}{yk("branches")}{yn(": [")}{yv("main")}{yn("]")}</> },
+  { num:  6, jsx: yn("") },
+  { num:  7, jsx: <>{yk("permissions")}{yn(":")}</>, hl: "add" },
+  { num:  8, jsx: <>{yn("  ")}{yk("contents")}{yn(": ")}{ya("read")}</>, hl: "add" },
+  { num:  9, jsx: <>{yn("  ")}{yk("pages")}{yn(":    ")}{ya("write")}</>, hl: "add" },
+  { num: 10, jsx: <>{yn("  ")}{yk("id-token")}{yn(": ")}{ya("write")}</>, hl: "add" },
+  { num: 11, jsx: yn("") },
+  { num: 12, jsx: <>{yk("concurrency")}{yn(":")} </> },
+  { num: 13, jsx: <>{yn("  ")}{yk("group")}{yn(': "pages"')}</> },
+  { num: 14, jsx: <>{yn("  ")}{yk("cancel-in-progress")}{yn(": false")}</> },
+  { num: 15, jsx: yn("") },
+  { num: 16, jsx: <>{yk("jobs")}{yn(":")}</> },
+  { num: 17, jsx: <>{yn("  ")}{yk("deploy")}{yn(":")}</> },
+  { num: 18, jsx: <>{yn("    ")}{yk("environment")}{yn(":")}</> },
+  { num: 19, jsx: <>{yn("      ")}{yk("name")}{yn(": github-pages")}</> },
+  { num: 20, jsx: <>{yn("      ")}{yk("url")}{yn(": ${{ steps.deployment.outputs.page_url }}")}</> },
+  { num: 21, jsx: <>{yn("    ")}{yk("runs-on")}{yn(": ubuntu-latest")}</> },
+  { num: 22, jsx: <>{yn("    ")}{yk("steps")}{yn(":")}</> },
+  { num: 23, jsx: <>{yn("      - ")}{yk("name")}{yn(": Checkout")}</> },
+  { num: 24, jsx: <>{yn("        ")}{yk("uses")}{yn(": actions/checkout@v4")}</> },
+  { num: 25, jsx: yn("") },
+  { num: 26, jsx: <>{yn("      - ")}{yk("name")}{yn(": Setup Node")}</> },
+  { num: 27, jsx: <>{yn("        ")}{yk("uses")}{yn(": actions/setup-node@v4")}</> },
+  { num: 28, jsx: <>{yn("        ")}{yk("with")}{yn(":")}</> },
+  { num: 29, jsx: <>{yn("          ")}{yk("node-version")}{yn(": 20")}</> },
+  { num: 30, jsx: <>{yn("          ")}{yk("cache")}{yn(": 'npm'")}</> },
+  { num: 31, jsx: yn("") },
+  { num: 32, jsx: <>{yn("      - ")}{yk("name")}{yn(": Install dependencies")}</> },
+  { num: 33, jsx: <>{yn("        ")}{yk("run")}{yn(": npm ci")}</> },
+  { num: 34, jsx: yn("") },
+  { num: 35, jsx: <>{yn("      - ")}{yk("name")}{yn(": Build")}</> },
+  { num: 36, jsx: <>{yn("        ")}{yk("run")}{yn(": npm run build")}</> },
+  { num: 37, jsx: yn("") },
+  { num: 38, jsx: <>{yn("      - ")}{yk("name")}{yn(": Setup Pages")}</> },
+  { num: 39, jsx: <>{yn("        ")}{yk("uses")}{yn(": actions/configure-pages@v5")}</> },
+  { num: 40, jsx: yn("") },
+  { num: 41, jsx: <>{yn("      - ")}{yk("name")}{yn(": Upload artifact")}</> },
+  { num: 42, jsx: <>{yn("        ")}{yk("uses")}{yn(": actions/upload-pages-artifact@v3")}</> },
+  { num: 43, jsx: <>{yn("        ")}{yk("with")}{yn(":")}</> },
+  { num: 44, jsx: <>{yn("          ")}{yk("path")}{yn(": ")}{yv("'./dist'")}</>, hl: "add" },
+  { num: 45, jsx: yn("") },
+  { num: 46, jsx: <>{yn("      - ")}{yk("name")}{yn(": Deploy to GitHub Pages")}</> },
+  { num: 47, jsx: <>{yn("        ")}{yk("id")}{yn(": deployment")}</> },
+  { num: 48, jsx: <>{yn("        ")}{yk("uses")}{yn(": actions/deploy-pages@v4")}</> },
+];
+
+const NEXT_WORKFLOW_ROWS: WRow[] = [
+  { num:  1, jsx: <>{yk("name")}{yn(": ")}{yv("Deploy Next.js to GitHub Pages")}</> },
+  { num:  2, jsx: yn("") },
+  { num:  3, jsx: <>{yk("on")}{yn(":")}</> },
+  { num:  4, jsx: <>{yn("  ")}{yk("push")}{yn(":")}</> },
+  { num:  5, jsx: <>{yn("    ")}{yk("branches")}{yn(": [")}{yv("main")}{yn("]")}</> },
+  { num:  6, jsx: yn("") },
+  { num:  7, jsx: <>{yk("permissions")}{yn(":")}</>, hl: "add" },
+  { num:  8, jsx: <>{yn("  ")}{yk("contents")}{yn(": ")}{ya("read")}</>, hl: "add" },
+  { num:  9, jsx: <>{yn("  ")}{yk("pages")}{yn(":    ")}{ya("write")}</>, hl: "add" },
+  { num: 10, jsx: <>{yn("  ")}{yk("id-token")}{yn(": ")}{ya("write")}</>, hl: "add" },
+  { num: 11, jsx: yn("") },
+  { num: 12, jsx: <>{yk("concurrency")}{yn(":")}</> },
+  { num: 13, jsx: <>{yn("  ")}{yk("group")}{yn(': "pages"')}</> },
+  { num: 14, jsx: <>{yn("  ")}{yk("cancel-in-progress")}{yn(": false")}</> },
+  { num: 15, jsx: yn("") },
+  { num: 16, jsx: <>{yk("jobs")}{yn(":")}</> },
+  { num: 17, jsx: <>{yn("  ")}{yk("build")}{yn(":")}</> },
+  { num: 18, jsx: <>{yn("    ")}{yk("runs-on")}{yn(": ubuntu-latest")}</> },
+  { num: 19, jsx: <>{yn("    ")}{yk("steps")}{yn(":")}</> },
+  { num: 20, jsx: <>{yn("      - ")}{yk("name")}{yn(": Checkout")}</> },
+  { num: 21, jsx: <>{yn("        ")}{yk("uses")}{yn(": actions/checkout@v4")}</> },
+  { num: 22, jsx: yn("") },
+  { num: 23, jsx: <>{yn("      - ")}{yk("name")}{yn(": Setup Node")}</> },
+  { num: 24, jsx: <>{yn("        ")}{yk("uses")}{yn(": actions/setup-node@v4")}</> },
+  { num: 25, jsx: <>{yn("        ")}{yk("with")}{yn(":")}</> },
+  { num: 26, jsx: <>{yn("          ")}{yk("node-version")}{yn(": 20")}</> },
+  { num: 27, jsx: <>{yn("          ")}{yk("cache")}{yn(": 'npm'")}</> },
+  { num: 28, jsx: yn("") },
+  { num: 29, jsx: <>{yn("      - ")}{yk("name")}{yn(": Install dependencies")}</> },
+  { num: 30, jsx: <>{yn("        ")}{yk("run")}{yn(": npm ci")}</> },
+  { num: 31, jsx: yn("") },
+  { num: 32, jsx: <>{yn("      - ")}{yk("name")}{yn(": Build with Next.js")}</> },
+  { num: 33, jsx: <>{yn("        ")}{yk("run")}{yn(": npm run build")}</> },
+  { num: 34, jsx: yn("") },
+  { num: 35, jsx: <>{yn("      - ")}{yk("name")}{yn(": Upload artifact")}</> },
+  { num: 36, jsx: <>{yn("        ")}{yk("uses")}{yn(": actions/upload-pages-artifact@v3")}</> },
+  { num: 37, jsx: <>{yn("        ")}{yk("with")}{yn(":")}</> },
+  { num: 38, jsx: <>{yn("          ")}{yk("path")}{yn(": ")}{yv("'./out'")}</>, hl: "add" },
+  { num: 39, jsx: yn("") },
+  { num: 40, jsx: <>{yn("  ")}{yk("deploy")}{yn(":")}</> },
+  { num: 41, jsx: <>{yn("    ")}{yk("environment")}{yn(":")}</> },
+  { num: 42, jsx: <>{yn("      ")}{yk("name")}{yn(": github-pages")}</> },
+  { num: 43, jsx: <>{yn("      ")}{yk("url")}{yn(": ${{ steps.deployment.outputs.page_url }}")}</> },
+  { num: 44, jsx: <>{yn("    ")}{yk("runs-on")}{yn(": ubuntu-latest")}</> },
+  { num: 45, jsx: <>{yn("    ")}{yk("needs")}{yn(": build")}</> },
+  { num: 46, jsx: <>{yn("    ")}{yk("steps")}{yn(":")}</> },
+  { num: 47, jsx: <>{yn("      - ")}{yk("name")}{yn(": Deploy to GitHub Pages")}</> },
+  { num: 48, jsx: <>{yn("        ")}{yk("id")}{yn(": deployment")}</> },
+  { num: 49, jsx: <>{yn("        ")}{yk("uses")}{yn(": actions/deploy-pages@v4")}</> },
+];
+
+const VITE_WORKFLOW_TEXT = `.github/workflows/deploy.yml
+
+name: Deploy to GitHub Pages
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: \${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Build
+        run: npm run build
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4`;
+
+const NEXT_WORKFLOW_TEXT = `.github/workflows/deploy.yml
+
+name: Deploy Next.js to GitHub Pages
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Build with Next.js
+        run: npm run build
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './out'
+  deploy:
+    environment:
+      name: github-pages
+      url: \${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4`;
+
+function CicdCopyBtn({ id }: { id: string }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = useCallback(async () => {
+    const text = id === "vite-workflow" ? VITE_WORKFLOW_TEXT : NEXT_WORKFLOW_TEXT;
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [id]);
+  return (
+    <button
+      onClick={handleCopy}
+      className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-md transition-all duration-200
+        ${copied
+          ? "bg-green-500/20 text-green-400 border border-green-500/30"
+          : "bg-slate-700/60 text-slate-300 border border-slate-600/50 hover:bg-slate-600/60 hover:text-white"
+        }`}
+    >
+      {copied ? "✓ 복사됨" : "복사"}
+    </button>
+  );
+}
 
 export default function DocContent() {
   const summaryRows: SummaryRow[] = [
@@ -548,6 +765,200 @@ export default function DocContent() {
           </div>
         ))}
       </div>
+
+      {/* ══════════════════════════════════════
+          PART 4 · GitHub Actions CI/CD 자동화
+      ══════════════════════════════════════ */}
+      <SectionAnchor id="cicd" />
+      <SectionTitle>
+        <Workflow size={18} className="text-primary" /> PART 4 · GitHub Actions CI/CD 자동화
+      </SectionTitle>
+
+      <Callout variant="info">
+        <p className="font-semibold mb-1">CI/CD란?</p>
+        <p><strong>CI(Continuous Integration)</strong>: 코드를 push할 때마다 자동으로 빌드·테스트</p>
+        <p className="mt-1"><strong>CD(Continuous Deployment)</strong>: 빌드가 성공하면 자동으로 배포</p>
+        <p className="mt-2">즉, 코드를 push하면 <strong>빌드 → 배포가 자동</strong>으로 이루어집니다. 로컬에서 <InlineCode>npm run deploy</InlineCode>를 직접 실행할 필요가 없습니다.</p>
+      </Callout>
+
+      {/* 4-1. 비교 */}
+      <SectionAnchor id="cicd-1" />
+      <SubTitle>4-1. 수동 배포 vs GitHub Actions 자동 배포 비교</SubTitle>
+
+      <div className="overflow-x-auto my-4">
+        <table className="w-full text-sm border-collapse">
+          <thead>
+            <tr className="bg-[oklch(0.24_0.015_220)] text-white">
+              <th className="text-left px-4 py-3 font-semibold">항목</th>
+              <th className="text-left px-4 py-3 font-semibold text-amber-300">수동 (npm run deploy)</th>
+              <th className="text-left px-4 py-3 font-semibold text-emerald-300 rounded-tr-lg">자동 (GitHub Actions)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              ["배포 방법",       "로컬에서 직접 명령어 실행",     "push만 하면 자동 실행"],
+              ["환경 의존성",     "내 PC에 Node.js 필수",          "GitHub 서버에서 실행 (PC 불필요)"],
+              ["팀 협업",        "각자 배포 권한 필요",            "push 권한만 있으면 자동 배포"],
+              ["실수 가능성",    "빌드 전 배포, 잘못된 브랜치 배포 가능", "조건 설정으로 실수 방지"],
+              ["배포 이력",      "로컬 터미널에서만 확인",         "GitHub Actions 탭에서 전체 이력 조회"],
+              ["설정 난이도",    "쉬움 (초기 설정만)",             "YAML 파일 1개 작성 필요"],
+            ].map(([item, manual, auto], i) => (
+              <tr key={i} className={`border-b border-border ${i % 2 === 1 ? "bg-muted/40" : ""}`}>
+                <td className="px-4 py-2.5 font-semibold text-foreground text-xs">{item}</td>
+                <td className="px-4 py-2.5 text-xs text-muted-foreground">{manual}</td>
+                <td className="px-4 py-2.5 text-xs text-green-700 font-medium">{auto}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* 4-2. workflow 파일 */}
+      <SectionAnchor id="cicd-2" />
+      <SubTitle>4-2. workflow 파일 만들기</SubTitle>
+      <Para>
+        프로젝트 루트에 아래 경로로 파일을 생성합니다.
+        폴더가 없으면 직접 만들어야 합니다.
+      </Para>
+      <TerminalBlock lines={[
+        { text: "# 폴더 생성 후 파일 생성", comment: true },
+        { text: "mkdir -p .github/workflows" },
+        { text: "# .github/workflows/deploy.yml  ← 이 파일을 만들면 됩니다", comment: true },
+      ]} />
+
+      <Callout variant="info">
+        <strong>파일 경로:</strong> <InlineCode>.github/workflows/deploy.yml</InlineCode><br />
+        탭을 눌러 React/Vite와 Next.js 각각의 workflow 코드를 확인하세요.
+      </Callout>
+
+      {/* Vite workflow */}
+      <p className="text-xs font-bold text-foreground mt-5 mb-2 flex items-center gap-2">
+        <span className="inline-flex items-center gap-1 bg-primary/10 text-primary border border-primary/20 rounded px-2 py-0.5 font-mono text-[11px]">⚡ React + Vite</span>
+        .github/workflows/deploy.yml
+      </p>
+      <div className="rounded-xl overflow-hidden border border-slate-700/50 my-2">
+        <div className="flex items-center justify-between px-4 py-2 bg-[oklch(0.18_0.01_220)] border-b border-slate-700/50">
+          <span className="font-mono text-xs text-slate-400">.github/workflows/deploy.yml</span>
+          <CicdCopyBtn id="vite-workflow" />
+        </div>
+        <div className="bg-[oklch(0.12_0.01_220)] overflow-x-auto">
+          <table className="w-full border-collapse text-[13px] font-mono">
+            <tbody>
+              {VITE_WORKFLOW_ROWS.map((row, i) => (
+                <tr key={i} className={row.hl === "add" ? "bg-emerald-500/10 border-l-2 border-emerald-400/60" : row.hl === "key" ? "bg-sky-500/5 border-l-2 border-transparent" : "border-l-2 border-transparent"}>
+                  <td className="select-none text-right pr-3 pl-4 py-[2px] text-slate-600 w-8 text-xs align-top border-r border-slate-700/30">{row.num}</td>
+                  <td className="pl-4 pr-4 py-[2px] whitespace-pre leading-relaxed">{row.jsx}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Next.js workflow */}
+      <p className="text-xs font-bold text-foreground mt-6 mb-2 flex items-center gap-2">
+        <span className="inline-flex items-center gap-1 bg-foreground/10 text-foreground border border-foreground/20 rounded px-2 py-0.5 font-mono text-[11px]">▲ Next.js</span>
+        .github/workflows/deploy.yml
+      </p>
+      <div className="rounded-xl overflow-hidden border border-slate-700/50 my-2">
+        <div className="flex items-center justify-between px-4 py-2 bg-[oklch(0.18_0.01_220)] border-b border-slate-700/50">
+          <span className="font-mono text-xs text-slate-400">.github/workflows/deploy.yml</span>
+          <CicdCopyBtn id="next-workflow" />
+        </div>
+        <div className="bg-[oklch(0.12_0.01_220)] overflow-x-auto">
+          <table className="w-full border-collapse text-[13px] font-mono">
+            <tbody>
+              {NEXT_WORKFLOW_ROWS.map((row, i) => (
+                <tr key={i} className={row.hl === "add" ? "bg-emerald-500/10 border-l-2 border-emerald-400/60" : "border-l-2 border-transparent"}>
+                  <td className="select-none text-right pr-3 pl-4 py-[2px] text-slate-600 w-8 text-xs align-top border-r border-slate-700/30">{row.num}</td>
+                  <td className="pl-4 pr-4 py-[2px] whitespace-pre leading-relaxed">{row.jsx}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="mt-3 p-3 rounded-lg bg-muted/30 border border-border text-xs text-muted-foreground leading-relaxed">
+        <p className="font-semibold text-foreground mb-1">핵심 흐름 설명</p>
+        <p>• <InlineCode>on: push: branches: [main]</InlineCode> — main 브랜치에 push될 때만 실행</p>
+        <p>• <InlineCode>permissions</InlineCode> — GitHub Pages 쓰기 권한 부여 (필수)</p>
+        <p>• <InlineCode>actions/checkout@v4</InlineCode> — 저장소 코드 가져오기</p>
+        <p>• <InlineCode>actions/setup-node@v4</InlineCode> — Node.js 환경 구성</p>
+        <p>• <InlineCode>npm ci</InlineCode> — <InlineCode>npm install</InlineCode>보다 빠르고 정확한 CI 전용 설치 명령</p>
+        <p>• <InlineCode>upload-pages-artifact</InlineCode> — 빌드 결과물을 GitHub에 업로드</p>
+        <p>• <InlineCode>deploy-pages</InlineCode> — GitHub Pages에 실제 배포</p>
+      </div>
+
+      {/* 4-3. GitHub 설정 */}
+      <SectionAnchor id="cicd-3" />
+      <SubTitle>4-3. GitHub 저장소 Pages 소스 변경</SubTitle>
+      <Para>
+        기존 <InlineCode>gh-pages</InlineCode> 브랜치 방식에서 <strong>GitHub Actions</strong> 방식으로 변경해야 합니다.
+        이 설정을 안 하면 workflow가 실행돼도 사이트가 안 바뀝니다.
+      </Para>
+
+      <div className="space-y-3 my-4">
+        {[
+          { n: 1, title: "저장소 Settings 탭 클릭", desc: "GitHub 저장소 페이지 상단 메뉴에서 Settings를 클릭합니다." },
+          { n: 2, title: "왼쪽 메뉴 → Pages 클릭", desc: "왼쪽 사이드바 Code and automation 섹션 아래의 Pages를 클릭합니다." },
+          { n: 3, title: "Build and deployment → Source 변경", desc: <>Source 항목을 <InlineCode>Deploy from a branch</InlineCode>에서 <strong className="text-primary">GitHub Actions</strong>로 변경합니다.</> },
+          { n: 4, title: "저장", desc: "변경 후 자동으로 저장됩니다. 별도의 Save 버튼은 없습니다." },
+        ].map(item => (
+          <div key={item.n} className="flex gap-3 p-3.5 bg-muted/30 rounded-xl border border-border">
+            <span className="shrink-0 w-7 h-7 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center mt-0.5">{item.n}</span>
+            <div>
+              <p className="font-semibold text-foreground text-sm mb-0.5">{item.title}</p>
+              <p className="text-xs text-muted-foreground leading-snug">{item.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <Callout variant="yellow">
+        <strong>주의:</strong> 기존에 <InlineCode>gh-pages</InlineCode> 브랜치로 배포하고 있었다면,
+        Source를 GitHub Actions로 바꾸는 순간부터 gh-pages 브랜치는 무시됩니다.
+        <InlineCode>npm run deploy</InlineCode>와 GitHub Actions를 동시에 쓰지 마세요.
+      </Callout>
+
+      {/* 4-4. 확인 */}
+      <SectionAnchor id="cicd-4" />
+      <SubTitle>4-4. 배포 확인하기</SubTitle>
+      <Para>설정이 완료되면 main 브랜치에 push할 때마다 자동으로 배포됩니다.</Para>
+
+      <TerminalBlock lines={[
+        { text: "# 파일 수정 후 커밋 & push만 하면 자동 배포!", comment: true },
+        { text: "git add ." },
+        { text: 'git commit -m "기능 추가"' },
+        { text: "git push origin main" },
+        { text: "" },
+        { text: "# → GitHub Actions가 자동으로 빌드 & 배포 시작", comment: true },
+        { text: "# → 저장소 Actions 탭에서 진행 상태 실시간 확인 가능", comment: true },
+      ]} />
+
+      <div className="my-4 rounded-xl border border-green-200 bg-green-50 p-4">
+        <p className="text-xs font-bold text-green-800 mb-3">Actions 탭에서 배포 확인하는 법</p>
+        <div className="space-y-2">
+          {[
+            { n: 1, t: "GitHub 저장소 페이지 상단 Actions 탭 클릭" },
+            { n: 2, t: "가장 최근 workflow run을 클릭 (주황색 → 진행 중 / 초록색 → 성공 / 빨간색 → 실패)" },
+            { n: 3, t: "deploy job 클릭 → 각 step별 로그 확인 가능" },
+            { n: 4, t: "성공 시 1~2분 후 사이트에 반영" },
+          ].map(item => (
+            <div key={item.n} className="flex items-start gap-2.5">
+              <span className="shrink-0 w-5 h-5 rounded-full bg-green-500 text-white text-[10px] font-bold flex items-center justify-center mt-0.5">{item.n}</span>
+              <p className="text-xs text-green-900 leading-snug">{item.t}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <Callout variant="red">
+        <p className="font-semibold mb-2 flex items-center gap-1.5">Actions 빌드 실패 시 확인 순서</p>
+        <p>① Actions 탭 → 실패한 run 클릭 → 빨간 step 클릭 → 에러 로그 확인</p>
+        <p className="mt-1">② 가장 흔한 원인: <InlineCode>next.config.ts</InlineCode>의 <InlineCode>basePath</InlineCode> 누락, <InlineCode>package.json</InlineCode> 의존성 누락, 빌드 오류</p>
+        <p className="mt-1">③ 수정 후 다시 push하면 자동으로 재실행됩니다.</p>
+      </Callout>
 
       {/* ── 요약표 ── */}
       <SectionAnchor id="summary" />

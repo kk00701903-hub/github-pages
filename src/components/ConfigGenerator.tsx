@@ -283,21 +283,115 @@ function CodePanel({ label, rows }: { label: string; rows: CodeRow[] }) {
 }
 
 /* ─────────────────────────────────────────
-   탭 정의
+   ③ GitHub Actions workflow 행 생성
 ───────────────────────────────────────── */
-type ViteTabId = "package" | "vite" | "git";
-type NextTabId = "package" | "next-config" | "git";
+function makeActionsRows(fw: Framework): CodeRow[] {
+  const isNext = fw === "next";
+  const pathVal = isNext ? "'./out'" : "'./dist'";
+  return [
+    { num:  1, segs: [k("name"), n(isNext ? ": Deploy Next.js to GitHub Pages" : ": Deploy to GitHub Pages")] },
+    { num:  2, segs: [] },
+    { num:  3, segs: [k("on"), n(":")] },
+    { num:  4, segs: [n("  "), k("push"), n(":")] },
+    { num:  5, segs: [n("    "), k("branches"), n(": ["), h("main"), n("]")] },
+    { num:  6, segs: [] },
+    { num:  7, segs: [k("permissions"), n(":")], addedLine: true },
+    { num:  8, segs: [n("  "), k("contents"), n(": "), a("read")], addedLine: true },
+    { num:  9, segs: [n("  "), k("pages"), n(":    "), a("write")], addedLine: true },
+    { num: 10, segs: [n("  "), k("id-token"), n(": "), a("write")], addedLine: true },
+    { num: 11, segs: [] },
+    { num: 12, segs: [k("concurrency"), n(":")] },
+    { num: 13, segs: [n("  "), k("group"), n(': "pages"')] },
+    { num: 14, segs: [n("  "), k("cancel-in-progress"), n(": false")] },
+    { num: 15, segs: [] },
+    { num: 16, segs: [k("jobs"), n(":")] },
+    ...(isNext ? [
+      { num: 17, segs: [n("  "), k("build"), n(":")] },
+      { num: 18, segs: [n("    "), k("runs-on"), n(": ubuntu-latest")] },
+      { num: 19, segs: [n("    "), k("steps"), n(":")] },
+      { num: 20, segs: [n("      - "), k("name"), n(": Checkout")] },
+      { num: 21, segs: [n("        "), k("uses"), n(": actions/checkout@v4")] },
+      { num: 22, segs: [] },
+      { num: 23, segs: [n("      - "), k("name"), n(": Setup Node")] },
+      { num: 24, segs: [n("        "), k("uses"), n(": actions/setup-node@v4")] },
+      { num: 25, segs: [n("        "), k("with"), n(":")] },
+      { num: 26, segs: [n("          "), k("node-version"), n(": 20")] },
+      { num: 27, segs: [n("          "), k("cache"), n(": 'npm'")] },
+      { num: 28, segs: [] },
+      { num: 29, segs: [n("      - "), k("name"), n(": Install")] },
+      { num: 30, segs: [n("        "), k("run"), n(": npm ci")] },
+      { num: 31, segs: [] },
+      { num: 32, segs: [n("      - "), k("name"), n(": Build")] },
+      { num: 33, segs: [n("        "), k("run"), n(": npm run build")] },
+      { num: 34, segs: [] },
+      { num: 35, segs: [n("      - "), k("name"), n(": Upload artifact")] },
+      { num: 36, segs: [n("        "), k("uses"), n(": actions/upload-pages-artifact@v3")] },
+      { num: 37, segs: [n("        "), k("with"), n(":")] },
+      { num: 38, segs: [n("          "), k("path"), n(": "), h(pathVal)], addedLine: true },
+      { num: 39, segs: [] },
+      { num: 40, segs: [n("  "), k("deploy"), n(":")] },
+      { num: 41, segs: [n("    "), k("environment"), n(":")] },
+      { num: 42, segs: [n("      "), k("name"), n(": github-pages")] },
+      { num: 43, segs: [n("      "), k("url"), n(": ${{ steps.deployment.outputs.page_url }}")] },
+      { num: 44, segs: [n("    "), k("runs-on"), n(": ubuntu-latest")] },
+      { num: 45, segs: [n("    "), k("needs"), n(": build")] },
+      { num: 46, segs: [n("    "), k("steps"), n(":")] },
+      { num: 47, segs: [n("      - "), k("name"), n(": Deploy to GitHub Pages")] },
+      { num: 48, segs: [n("        "), k("id"), n(": deployment")] },
+      { num: 49, segs: [n("        "), k("uses"), n(": actions/deploy-pages@v4")] },
+    ] : [
+      { num: 17, segs: [n("  "), k("deploy"), n(":")] },
+      { num: 18, segs: [n("    "), k("environment"), n(":")] },
+      { num: 19, segs: [n("      "), k("name"), n(": github-pages")] },
+      { num: 20, segs: [n("      "), k("url"), n(": ${{ steps.deployment.outputs.page_url }}")] },
+      { num: 21, segs: [n("    "), k("runs-on"), n(": ubuntu-latest")] },
+      { num: 22, segs: [n("    "), k("steps"), n(":")] },
+      { num: 23, segs: [n("      - "), k("name"), n(": Checkout")] },
+      { num: 24, segs: [n("        "), k("uses"), n(": actions/checkout@v4")] },
+      { num: 25, segs: [] },
+      { num: 26, segs: [n("      - "), k("name"), n(": Setup Node")] },
+      { num: 27, segs: [n("        "), k("uses"), n(": actions/setup-node@v4")] },
+      { num: 28, segs: [n("        "), k("with"), n(":")] },
+      { num: 29, segs: [n("          "), k("node-version"), n(": 20")] },
+      { num: 30, segs: [n("          "), k("cache"), n(": 'npm'")] },
+      { num: 31, segs: [] },
+      { num: 32, segs: [n("      - "), k("name"), n(": Install")] },
+      { num: 33, segs: [n("        "), k("run"), n(": npm ci")] },
+      { num: 34, segs: [] },
+      { num: 35, segs: [n("      - "), k("name"), n(": Build")] },
+      { num: 36, segs: [n("        "), k("run"), n(": npm run build")] },
+      { num: 37, segs: [] },
+      { num: 38, segs: [n("      - "), k("name"), n(": Setup Pages")] },
+      { num: 39, segs: [n("        "), k("uses"), n(": actions/configure-pages@v5")] },
+      { num: 40, segs: [] },
+      { num: 41, segs: [n("      - "), k("name"), n(": Upload artifact")] },
+      { num: 42, segs: [n("        "), k("uses"), n(": actions/upload-pages-artifact@v3")] },
+      { num: 43, segs: [n("        "), k("with"), n(":")] },
+      { num: 44, segs: [n("          "), k("path"), n(": "), h(pathVal)], addedLine: true },
+      { num: 45, segs: [] },
+      { num: 46, segs: [n("      - "), k("name"), n(": Deploy to GitHub Pages")] },
+      { num: 47, segs: [n("        "), k("id"), n(": deployment")] },
+      { num: 48, segs: [n("        "), k("uses"), n(": actions/deploy-pages@v4")] },
+    ]),
+  ];
+}
+
+
+type ViteTabId = "package" | "vite" | "git" | "actions";
+type NextTabId = "package" | "next-config" | "git" | "actions";
 type TabId = ViteTabId | NextTabId;
 
 const VITE_TABS: { id: ViteTabId; label: string }[] = [
   { id: "package", label: "package.json" },
   { id: "vite",    label: "vite.config.ts" },
   { id: "git",     label: "Git 명령어" },
+  { id: "actions", label: "GitHub Actions" },
 ];
 const NEXT_TABS: { id: NextTabId; label: string }[] = [
   { id: "package",     label: "package.json" },
   { id: "next-config", label: "next.config.ts" },
   { id: "git",         label: "Git 명령어" },
+  { id: "actions",     label: "GitHub Actions" },
 ];
 
 /* ─────────────────────────────────────────
@@ -343,11 +437,13 @@ export function ConfigGenerator() {
     package: makeVitePackageRows(cfg),
     vite:    makeViteConfigRows(cfg),
     git:     makeGitRows(cfg, "vite"),
+    actions: makeActionsRows("vite"),
   };
   const nextRows: Record<NextTabId, CodeRow[]> = {
-    package:     makeNextPackageRows(cfg),
+    package:       makeNextPackageRows(cfg),
     "next-config": makeNextConfigRows(cfg),
-    git:         makeGitRows(cfg, "next"),
+    git:           makeGitRows(cfg, "next"),
+    actions:       makeActionsRows("next"),
   };
 
   const currentRows: CodeRow[] =
@@ -365,7 +461,8 @@ export function ConfigGenerator() {
       : <><InlineCode>homepage</InlineCode> · <InlineCode>predeploy</InlineCode> · <InlineCode>deploy</InlineCode> · <InlineCode>gh-pages</InlineCode> — 초록 줄 4개가 추가·수정됩니다. Next.js는 배포 폴더가 <InlineCode>out/</InlineCode>입니다.</>,
     vite:          <><InlineCode>base</InlineCode> 값 1줄만 저장소 이름으로 바꾸면 됩니다.</>,
     "next-config": <><InlineCode>basePath</InlineCode> · <InlineCode>assetPrefix</InlineCode> — 주황 값 2곳을 저장소 이름으로 교체하세요. <InlineCode>output</InlineCode> · <InlineCode>images</InlineCode> 설정은 그대로 유지합니다.</>,
-    git:           <>주황 값 2곳 — 폴더 경로와 원격 저장소 URL을 실제 내 값으로 교체하세요.</>,
+    git:     <>주황 값 2곳 — 폴더 경로와 원격 저장소 URL을 실제 내 값으로 교체하세요.</>,
+    actions: <><strong>.github/workflows/deploy.yml</strong> 파일로 저장하세요. 초록 줄(<InlineCode>permissions</InlineCode> 블록 + 배포 경로)이 GitHub Pages 배포에 필수인 부분입니다. GitHub 저장소 Settings → Pages → Source를 <InlineCode>GitHub Actions</InlineCode>로 변경 후 push하면 자동 배포됩니다.</>,
   };
 
   return (
