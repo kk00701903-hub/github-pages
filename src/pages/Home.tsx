@@ -930,7 +930,7 @@ export default function DocContent() {
         { text: "# 파일 수정 후 커밋 & push만 하면 자동 배포!", comment: true },
         { text: "git add ." },
         { text: 'git commit -m "기능 추가"' },
-        { text: "git push origin main" },
+        { text: "git push origin master" },
         { text: "" },
         { text: "# → GitHub Actions가 자동으로 빌드 & 배포 시작", comment: true },
         { text: "# → 저장소 Actions 탭에서 진행 상태 실시간 확인 가능", comment: true },
