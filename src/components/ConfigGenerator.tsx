@@ -293,7 +293,7 @@ function makeActionsRows(fw: Framework): CodeRow[] {
     { num:  2, segs: [] },
     { num:  3, segs: [k("on"), n(":")] },
     { num:  4, segs: [n("  "), k("push"), n(":")] },
-    { num:  5, segs: [n("    "), k("branches"), n(": ["), h("main"), n("]")] },
+    { num:  5, segs: [n("    "), k("branches"), n(": ["), h("master"), n("]")] },
     { num:  6, segs: [] },
     { num:  7, segs: [k("permissions"), n(":")], addedLine: true },
     { num:  8, segs: [n("  "), k("contents"), n(": "), a("read")], addedLine: true },

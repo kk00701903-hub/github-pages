@@ -19,7 +19,7 @@ const VITE_WORKFLOW_ROWS: WRow[] = [
   { num:  2, jsx: yn("") },
   { num:  3, jsx: <>{yk("on")}{yn(":")}</> },
   { num:  4, jsx: <>{yn("  ")}{yk("push")}{yn(":")}</> },
-  { num:  5, jsx: <>{yn("    ")}{yk("branches")}{yn(": [")}{yv("main")}{yn("]")}</> },
+  { num:  5, jsx: <>{yn("    ")}{yk("branches")}{yn(": [")}{yv("master")}{yn("]")}</> },
   { num:  6, jsx: yn("") },
   { num:  7, jsx: <>{yk("permissions")}{yn(":")}</>, hl: "add" },
   { num:  8, jsx: <>{yn("  ")}{yk("contents")}{yn(": ")}{ya("read")}</>, hl: "add" },
@@ -70,7 +70,7 @@ const NEXT_WORKFLOW_ROWS: WRow[] = [
   { num:  2, jsx: yn("") },
   { num:  3, jsx: <>{yk("on")}{yn(":")}</> },
   { num:  4, jsx: <>{yn("  ")}{yk("push")}{yn(":")}</> },
-  { num:  5, jsx: <>{yn("    ")}{yk("branches")}{yn(": [")}{yv("main")}{yn("]")}</> },
+  { num:  5, jsx: <>{yn("    ")}{yk("branches")}{yn(": [")}{yv("master")}{yn("]")}</> },
   { num:  6, jsx: yn("") },
   { num:  7, jsx: <>{yk("permissions")}{yn(":")}</>, hl: "add" },
   { num:  8, jsx: <>{yn("  ")}{yk("contents")}{yn(": ")}{ya("read")}</>, hl: "add" },
@@ -122,7 +122,7 @@ const VITE_WORKFLOW_TEXT = `.github/workflows/deploy.yml
 name: Deploy to GitHub Pages
 on:
   push:
-    branches: [main]
+    branches: [master]
 permissions:
   contents: read
   pages: write
@@ -163,7 +163,7 @@ const NEXT_WORKFLOW_TEXT = `.github/workflows/deploy.yml
 name: Deploy Next.js to GitHub Pages
 on:
   push:
-    branches: [main]
+    branches: [master]
 permissions:
   contents: read
   pages: write
@@ -881,7 +881,7 @@ export default function DocContent() {
 
       <div className="mt-3 p-3 rounded-lg bg-muted/30 border border-border text-xs text-muted-foreground leading-relaxed">
         <p className="font-semibold text-foreground mb-1">핵심 흐름 설명</p>
-        <p>• <InlineCode>on: push: branches: [main]</InlineCode> — main 브랜치에 push될 때만 실행</p>
+        <p>• <InlineCode>on: push: branches: [master]</InlineCode> — master 브랜치에 push될 때만 실행</p>
         <p>• <InlineCode>permissions</InlineCode> — GitHub Pages 쓰기 권한 부여 (필수)</p>
         <p>• <InlineCode>actions/checkout@v4</InlineCode> — 저장소 코드 가져오기</p>
         <p>• <InlineCode>actions/setup-node@v4</InlineCode> — Node.js 환경 구성</p>
