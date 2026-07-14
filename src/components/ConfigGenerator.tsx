@@ -485,12 +485,26 @@ export function ConfigGenerator() {
   const [repoName,   setRepoName]   = useState("");
   const [framework,  setFramework]  = useState<Framework>("vite");
   const [activeTab,  setActiveTab]  = useState<TabId>("package");
+  const [githubUrl,  setGithubUrl]  = useState("");
 
   // 컴포넌트 마운트 시 자동으로 GitHub 정보 추출
   useEffect(() => {
     const info = extractGitHubInfo();
     if (info.username) setUsername(info.username);
     if (info.repoName) setRepoName(info.repoName);
+  }, []);
+
+  // GitHub URL에서 username과 repoName 추출
+  const handleGithubUrlChange = useCallback((url: string) => {
+    setGithubUrl(url);
+    
+    // https://github.com/username/repo-name 형식 파싱
+    const match = url.match(/github\.com\/([^\/]+)\/([^\/\s]+)/);
+    if (match) {
+      const [, user, repo] = match;
+      setUsername(user);
+      setRepoName(repo.replace(/\.git$/, '')); // .git 제거
+    }
   }, []);
 
   const cfg: ProjectConfig = { username: username.trim(), repoName: repoName.trim() };
@@ -583,6 +597,34 @@ export function ConfigGenerator() {
 
       {/* 입력 폼 */}
       <div className="px-5 sm:px-6 lg:px-8 py-5 border-b border-border mt-4">
+        {/* GitHub URL 입력 */}
+        <div className="mb-5">
+          <label className="block text-sm font-semibold text-foreground mb-2">
+            GitHub 저장소 URL
+          </label>
+          <div className="flex items-center gap-2 bg-background border-2 border-primary/30 rounded-lg px-3 py-2.5 focus-within:ring-2 focus-within:ring-primary/40 focus-within:border-primary transition-all">
+            <Github size={16} className="text-muted-foreground shrink-0" />
+            <input
+              type="text"
+              value={githubUrl}
+              onChange={e => handleGithubUrlChange(e.target.value)}
+              placeholder="https://github.com/kk00701903-hub/github-pages"
+              className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/50 font-mono"
+            />
+          </div>
+          <p className="text-xs text-muted-foreground mt-1.5 ml-1">
+            저장소 URL을 붙여넣으면 자동으로 아이디와 저장소 이름이 입력됩니다
+          </p>
+        </div>
+
+        {/* 구분선 */}
+        <div className="flex items-center gap-3 mb-5">
+          <div className="flex-1 h-px bg-border"></div>
+          <span className="text-xs text-muted-foreground font-semibold">또는 직접 입력</span>
+          <div className="flex-1 h-px bg-border"></div>
+        </div>
+
+        {/* 개별 입력 필드 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
           <div>
             <label className="block text-xs font-semibold text-foreground mb-1.5">
