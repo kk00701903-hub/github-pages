@@ -33,7 +33,7 @@ export default function App() {
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar activeId={activeId} onNavigate={handleNavigate} />
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto lg:ml-0">
         <Home />
       </main>
     </div>

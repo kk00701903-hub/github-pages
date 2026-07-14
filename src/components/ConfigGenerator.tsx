@@ -1,4 +1,4 @@
-import { useState, useCallback, ReactNode } from "react";
+import { useState, useCallback, ReactNode, useEffect } from "react";
 import { Copy, Check, Github, RefreshCw, Zap, Triangle } from "lucide-react";
 import { InlineCode } from "@/components/DocBlocks";
 
@@ -46,6 +46,37 @@ const h = (v: string): Seg => ({ t: "highlight", v });
 const c = (v: string): Seg => ({ t: "comment",   v });
 const k = (v: string): Seg => ({ t: "key",       v });
 const a = (v: string): Seg => ({ t: "added",     v });
+
+/* ─────────────────────────────────────────
+   package.json에서 GitHub 정보 추출
+───────────────────────────────────────── */
+function extractGitHubInfo(): { username: string; repoName: string } {
+  try {
+    // 1. package.json의 homepage 필드에서 추출 시도 (빌드 시 주입된 값)
+    const homepage = __PACKAGE_HOMEPAGE__;
+    if (homepage) {
+      // homepage URL 파싱: https://username.github.io/repoName/
+      const match = homepage.match(/https?:\/\/([^\.]+)\.github\.io\/([^\/]+)/);
+      if (match) {
+        return { username: match[1], repoName: match[2] };
+      }
+    }
+    
+    // 2. 현재 페이지 URL에서 추출 시도 (GitHub Pages에서 실행 중인 경우)
+    const url = window.location.href;
+    const subdomainMatch = url.match(/\/\/([^\.]+)\.github\.io/);
+    const repoMatch = url.match(/github\.io\/([^\/\?#]+)/);
+    
+    if (subdomainMatch && repoMatch) {
+      const username = subdomainMatch[1];
+      const repoName = repoMatch[1];
+      return { username, repoName };
+    }
+  } catch (e) {
+    console.error("Failed to extract GitHub info:", e);
+  }
+  return { username: "", repoName: "" };
+}
 
 /* ─────────────────────────────────────────
    ① React/Vite 코드 생성
@@ -196,21 +227,21 @@ function rowsToText(rows: CodeRow[]): string {
 ───────────────────────────────────────── */
 function Legend() {
   return (
-    <div className="flex flex-wrap gap-3 px-4 py-2.5 border-t border-slate-700/40 bg-[oklch(0.16_0.01_220)]">
-      <span className="flex items-center gap-1.5 text-[11px] text-slate-400">
-        <span className="inline-block w-2.5 h-2.5 rounded-sm bg-amber-400/80" />
+    <div className="flex flex-wrap gap-4 px-4 sm:px-5 py-3 border-t border-slate-700/40 bg-[oklch(0.16_0.01_220)]">
+      <span className="flex items-center gap-2 text-xs text-slate-400">
+        <span className="inline-block w-3 h-3 rounded-sm bg-amber-400/80" />
         붙여넣기 핵심 값
       </span>
-      <span className="flex items-center gap-1.5 text-[11px] text-slate-400">
-        <span className="inline-block w-2.5 h-2.5 rounded-sm bg-emerald-500/70" />
+      <span className="flex items-center gap-2 text-xs text-slate-400">
+        <span className="inline-block w-3 h-3 rounded-sm bg-emerald-500/70" />
         새로 추가하는 줄
       </span>
-      <span className="flex items-center gap-1.5 text-[11px] text-slate-400">
-        <span className="inline-block w-2.5 h-2.5 rounded-sm bg-sky-500/50" />
+      <span className="flex items-center gap-2 text-xs text-slate-400">
+        <span className="inline-block w-3 h-3 rounded-sm bg-sky-500/50" />
         키(key) 이름
       </span>
-      <span className="flex items-center gap-1.5 text-[11px] text-slate-400">
-        <span className="inline-block w-2.5 h-2.5 rounded-sm bg-slate-600" />
+      <span className="flex items-center gap-2 text-xs text-slate-400">
+        <span className="inline-block w-3 h-3 rounded-sm bg-slate-600" />
         수정하지 않는 줄
       </span>
     </div>
@@ -247,13 +278,13 @@ function CopyButton({ text }: { text: string }) {
 function CodePanel({ label, rows }: { label: string; rows: CodeRow[] }) {
   const plainText = rowsToText(rows);
   return (
-    <div className="rounded-xl overflow-hidden border border-slate-700/50">
-      <div className="flex items-center justify-between px-4 py-2.5 bg-[oklch(0.18_0.01_220)] border-b border-slate-700/50">
-        <span className="font-mono text-xs text-slate-400 font-semibold">{label}</span>
+    <div className="rounded-xl overflow-hidden border border-slate-700/50 shadow-lg">
+      <div className="flex items-center justify-between px-4 sm:px-5 py-3 bg-[oklch(0.18_0.01_220)] border-b border-slate-700/50">
+        <span className="font-mono text-sm text-slate-400 font-semibold">{label}</span>
         <CopyButton text={plainText} />
       </div>
       <div className="bg-[oklch(0.12_0.01_220)] overflow-x-auto">
-        <table className="w-full border-collapse text-[13px] font-mono">
+        <table className="w-full border-collapse text-sm font-mono">
           <tbody>
             {rows.map((row, i) => (
               <tr
@@ -263,10 +294,10 @@ function CodePanel({ label, rows }: { label: string; rows: CodeRow[] }) {
                   : "border-l-2 border-transparent"
                 }
               >
-                <td className="select-none text-right pr-3 pl-4 py-[3px] text-slate-600 w-8 text-xs align-top border-r border-slate-700/30 shrink-0">
+                <td className="select-none text-right pr-4 pl-4 sm:pl-5 py-1 text-slate-600 w-10 sm:w-12 text-xs align-top border-r border-slate-700/30 shrink-0">
                   {row.num ?? ""}
                 </td>
-                <td className="pl-4 pr-4 py-[3px] whitespace-pre leading-relaxed">
+                <td className="pl-4 sm:pl-5 pr-4 py-1 whitespace-pre leading-relaxed">
                   {row.segs.length === 0
                     ? <span>&nbsp;</span>
                     : row.segs.map((s, si) => renderSeg(s, si))
@@ -423,6 +454,13 @@ export function ConfigGenerator() {
   const [framework,  setFramework]  = useState<Framework>("vite");
   const [activeTab,  setActiveTab]  = useState<TabId>("package");
 
+  // 컴포넌트 마운트 시 자동으로 GitHub 정보 추출
+  useEffect(() => {
+    const info = extractGitHubInfo();
+    if (info.username) setUsername(info.username);
+    if (info.repoName) setRepoName(info.repoName);
+  }, []);
+
   const cfg: ProjectConfig = { username: username.trim(), repoName: repoName.trim() };
   const isReady = cfg.username !== "" && cfg.repoName !== "";
 
@@ -466,7 +504,7 @@ export function ConfigGenerator() {
   };
 
   return (
-    <div className="my-6 rounded-2xl border border-primary/20 bg-gradient-to-br from-accent/30 to-background overflow-hidden shadow-sm">
+    <div className="my-8 rounded-2xl border border-primary/20 bg-gradient-to-br from-accent/30 to-background overflow-hidden shadow-lg">
 
       {/* 헤더 */}
       <div className="px-5 py-4 border-b border-border bg-accent/20">
@@ -512,8 +550,8 @@ export function ConfigGenerator() {
       {framework === "next" && <NextjsNotice />}
 
       {/* 입력 폼 */}
-      <div className="px-5 py-4 border-b border-border mt-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="px-5 sm:px-6 lg:px-8 py-5 border-b border-border mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
           <div>
             <label className="block text-xs font-semibold text-foreground mb-1.5">
               GitHub 아이디 (username)
@@ -584,7 +622,7 @@ export function ConfigGenerator() {
       </div>
 
       {/* 코드 출력 */}
-      <div className="p-4">
+      <div className="p-4 sm:p-6 lg:p-8">
         <CodePanel label={currentLabel} rows={currentRows} />
         {hintMap[activeTab] && (
           <p className="mt-2 text-xs text-muted-foreground">

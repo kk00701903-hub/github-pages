@@ -235,19 +235,19 @@ export default function DocContent() {
   ];
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-10 pb-24">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 py-8 sm:py-12 lg:py-16 pb-24">
 
       {/* ── 시작하기 ── */}
       <SectionAnchor id="intro" />
-      <div className="mb-10">
-        <span className="inline-block text-xs font-semibold uppercase tracking-widest text-primary bg-accent px-3 py-1 rounded-full mb-4">
+      <div className="mb-12 sm:mb-16">
+        <span className="inline-block text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary bg-accent px-4 py-2 rounded-full mb-6 shadow-sm">
           GitHub Pages 배포 가이드
         </span>
-        <h1 className="text-3xl font-bold text-foreground leading-tight mb-3">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-5">
           처음 해도 OK<br />
           <span className="text-primary">GitHub 페이지 배포</span> 완전 가이드
         </h1>
-        <p className="text-muted-foreground leading-relaxed">
+        <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-4xl">
           React + Vite 프로젝트를 GitHub Pages에 올리는 전체 과정을<br />
           <strong className="text-foreground">"한 번만 하면 되는 것"</strong>과{" "}
           <strong className="text-foreground">"새 폴더마다 해야 하는 것"</strong>으로 나눠 설명합니다.
@@ -262,28 +262,28 @@ export default function DocContent() {
       <SectionAnchor id="concept" />
       <SectionTitle>핵심 개념 — 먼저 이것만 이해하세요</SectionTitle>
       <Callout variant="info">
-        <p className="font-semibold mb-1">비유로 이해하기</p>
-        <p>Node.js와 Git 설치는 <strong>내 방에 전동 드릴을 사는 것</strong>입니다.<br />
+        <p className="font-semibold mb-2 text-lg">비유로 이해하기</p>
+        <p className="text-base">Node.js와 Git 설치는 <strong>내 방에 전동 드릴을 사는 것</strong>입니다.<br />
         한 번 사면 어느 집(폴더)에 가도 가져다 쓸 수 있죠.</p>
-        <p className="mt-2">반면 npm install, git init 등은 <strong>각 공사 현장(폴더)마다 자재를 주문하는 것</strong>입니다.<br />
+        <p className="mt-3 text-base">반면 npm install, git init 등은 <strong>각 공사 현장(폴더)마다 자재를 주문하는 것</strong>입니다.<br />
         공사 현장이 바뀌면 자재도 새로 주문해야 합니다.</p>
       </Callout>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 my-4">
-        <div className="border border-green-200 rounded-xl p-4 bg-green-50">
-          <p className="text-xs font-bold text-green-700 uppercase tracking-wide mb-3 flex items-center gap-1.5">
-            <Monitor size={13} /> 컴퓨터에 딱 한 번만
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 my-6 sm:my-8">
+        <div className="border-2 border-green-300 rounded-xl p-5 sm:p-6 bg-green-50 shadow-md">
+          <p className="text-sm font-bold text-green-700 uppercase tracking-wide mb-4 flex items-center gap-2">
+            <Monitor size={16} /> 컴퓨터에 딱 한 번만
           </p>
-          <ul className="space-y-1.5 text-sm text-green-900">
+          <ul className="space-y-2 text-base text-green-900">
             <li>• Node.js 설치</li>
             <li>• Git 설치</li>
             <li>• Git 이름/이메일 전역 설정</li>
           </ul>
         </div>
-        <div className="border border-blue-200 rounded-xl p-4 bg-blue-50">
-          <p className="text-xs font-bold text-blue-700 uppercase tracking-wide mb-3 flex items-center gap-1.5">
-            <FolderOpen size={13} /> 새 폴더마다 다시 해야 함
+        <div className="border-2 border-blue-300 rounded-xl p-5 sm:p-6 bg-blue-50 shadow-md">
+          <p className="text-sm font-bold text-blue-700 uppercase tracking-wide mb-4 flex items-center gap-2">
+            <FolderOpen size={16} /> 새 폴더마다 다시 해야 함
           </p>
-          <ul className="space-y-1.5 text-sm text-blue-900">
+          <ul className="space-y-2 text-base text-blue-900">
             <li>• npm install gh-pages</li>
             <li>• package.json 수정</li>
             <li>• vite.config.ts 수정</li>
@@ -303,7 +303,7 @@ export default function DocContent() {
 
       <StepCard num={1} title="Node.js 설치">
         <p>Node.js는 JavaScript를 내 컴퓨터에서 실행하게 해주는 프로그램입니다. npm(패키지 관리자)도 함께 설치됩니다.</p>
-        <p className="mt-1">공식 사이트 <strong>nodejs.org</strong>에서 LTS 버전을 받아 설치 후 확인:</p>
+        <p className="mt-2">공식 사이트 <strong>nodejs.org</strong>에서 LTS 버전을 받아 설치 후 확인:</p>
         <TerminalBlock lines={[
           { text: "node -v    # 예: v20.11.0 이 나오면 성공", comment: false },
           { text: "npm  -v    # 예: 10.2.4  이 나오면 성공", comment: false },
@@ -312,7 +312,7 @@ export default function DocContent() {
 
       <StepCard num={2} title="Git 설치">
         <p>Git은 코드 변경 이력을 관리하고 GitHub에 업로드할 수 있게 해주는 프로그램입니다.</p>
-        <p className="mt-1"><strong>git-scm.com</strong>에서 Windows용 Git을 받아 설치 후 확인:</p>
+        <p className="mt-2"><strong>git-scm.com</strong>에서 Windows용 Git을 받아 설치 후 확인:</p>
         <TerminalBlock lines={[
           { text: "git --version    # 예: git version 2.43.0.windows.1" },
         ]} />
@@ -538,21 +538,21 @@ export default function DocContent() {
       </SectionTitle>
 
       {/* 전체 흐름 요약 카드 */}
-      <div className="my-4 rounded-xl border border-border overflow-hidden">
-        <div className="bg-muted/50 px-4 py-3 border-b border-border">
-          <p className="text-xs font-bold text-foreground uppercase tracking-wide">수정 → 배포 전체 흐름 한눈에 보기</p>
+      <div className="my-6 sm:my-8 rounded-xl border-2 border-border overflow-hidden shadow-lg">
+        <div className="bg-muted/50 px-5 sm:px-6 py-4 border-b border-border">
+          <p className="text-sm font-bold text-foreground uppercase tracking-wide">수정 → 배포 전체 흐름 한눈에 보기</p>
         </div>
-        <div className="flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-border">
+        <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-border">
           {[
             { step: "1", icon: "✏️", label: "파일 수정",      desc: "VS Code 등으로 src 폴더 안 파일 편집" },
             { step: "2", icon: "💾", label: "커밋 (선택)",     desc: "git add → commit으로 이력 저장" },
             { step: "3", icon: "🚀", label: "npm run deploy", desc: "한 줄로 빌드 + GitHub Pages 배포" },
             { step: "4", icon: "✅", label: "사이트 확인",     desc: "1~2분 뒤 브라우저에서 반영 확인" },
           ].map(item => (
-            <div key={item.step} className="flex-1 px-4 py-4 text-center">
-              <div className="text-xl mb-1">{item.icon}</div>
-              <p className="text-xs font-bold text-foreground mb-0.5">{item.label}</p>
-              <p className="text-[11px] text-muted-foreground leading-snug">{item.desc}</p>
+            <div key={item.step} className="flex-1 px-5 py-6 text-center">
+              <div className="text-2xl mb-2">{item.icon}</div>
+              <p className="text-sm font-bold text-foreground mb-1">{item.label}</p>
+              <p className="text-xs text-muted-foreground leading-snug">{item.desc}</p>
             </div>
           ))}
         </div>
@@ -571,7 +571,7 @@ export default function DocContent() {
         VS Code, Cursor 등 에디터로 원하는 파일을 열고 수정 후 저장합니다.
       </Para>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 my-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 my-6">
         {[
           { file: "src/App.tsx",         desc: "앱의 최상위 컴포넌트 — 라우팅, 전체 구조 변경" },
           { file: "src/pages/Home.tsx",  desc: "메인 페이지 내용 수정" },
@@ -580,9 +580,9 @@ export default function DocContent() {
           { file: "public/",             desc: "이미지, 파비콘 등 정적 파일 교체" },
           { file: "package.json",        desc: "패키지 추가·삭제 시만 수정 (배포 설정 건드리지 않도록 주의)" },
         ].map(item => (
-          <div key={item.file} className="flex gap-3 p-3 bg-muted/30 rounded-lg border border-border">
-            <code className="text-[11px] font-mono text-primary shrink-0 mt-0.5">{item.file}</code>
-            <p className="text-[12px] text-muted-foreground leading-snug">{item.desc}</p>
+          <div key={item.file} className="flex gap-3 p-4 bg-muted/30 rounded-lg border border-border shadow-sm">
+            <code className="text-xs font-mono text-primary shrink-0 mt-0.5 font-semibold">{item.file}</code>
+            <p className="text-sm text-muted-foreground leading-snug">{item.desc}</p>
           </div>
         ))}
       </div>

@@ -6,6 +6,7 @@ import fs from 'node:fs/promises';
 import nodePath from 'node:path';
 import { componentTagger } from 'lovable-tagger';
 import path from "path";
+import { readFileSync } from 'node:fs';
 
 import { parse } from '@babel/parser';
 import _traverse from '@babel/traverse';
@@ -207,6 +208,15 @@ function cdnPrefixImages(): Plugin {
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
+  // Read package.json to extract homepage
+  let packageHomepage = '';
+  try {
+    const packageJson = JSON.parse(readFileSync('./package.json', 'utf-8'));
+    packageHomepage = packageJson.homepage || '';
+  } catch (e) {
+    console.warn('Failed to read package.json:', e);
+  }
+
   return {
     base: "/github-pages/",
     server: {
@@ -238,6 +248,8 @@ export default defineConfig(({ mode }) => {
           ? process.env.VITE_ENABLE_ROUTE_MESSAGING === 'true'
           : process.env.VITE_ENABLE_ROUTE_MESSAGING !== 'false'
       ),
+      // Inject package.json homepage for auto-fill in ConfigGenerator
+      __PACKAGE_HOMEPAGE__: JSON.stringify(packageHomepage),
     },
   }
 });
