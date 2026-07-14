@@ -23,6 +23,7 @@ type CodeRow = {
   num?: number | string;
   segs: Seg[];
   addedLine?: boolean;
+  copyText?: string; // 개별 복사 버튼용 텍스트
 };
 
 /* ─────────────────────────────────────────
@@ -91,15 +92,15 @@ function makeVitePackageRows(cfg: ProjectConfig): CodeRow[] {
     { num: 2,  segs: [n("  "), k('"name"'),     n(`: "${name}",`)] },
     { num: 3,  segs: [n("  "), k('"private"'),  n(": true,")] },
     { num: 4,  segs: [n("  "), k('"version"'),  n(': "0.0.0",')] },
-    { num: 5,  segs: [n("  "), k('"homepage"'), n(": "), h(`"${homepage}"`), n(",")], addedLine: true },
+    { num: 5,  segs: [n("  "), k('"homepage"'), n(": "), h(`"${homepage}"`), n(",")], addedLine: true, copyText: `"homepage": "${homepage}",` },
     { num: 6,  segs: [n("  "), k('"type"'),     n(': "module",')] },
     { num: 7,  segs: [n("  "), k('"scripts"'),  n(": {")] },
     { num: 8,  segs: [n('    '), k('"dev"'),     n(': "vite",')] },
     { num: 9,  segs: [n('    '), k('"build"'),   n(': "tsc && vite build",')] },
     { num: 10, segs: [n('    '), k('"lint"'),    n(': "eslint .",')] },
     { num: 11, segs: [n('    '), k('"preview"'), n(': "vite preview",')] },
-    { num: 12, segs: [n('    '), k('"predeploy"'), n(": "), a('"npm run build"'), n(",")], addedLine: true },
-    { num: 13, segs: [n('    '), k('"deploy"'),  n(": "), a('"gh-pages -d dist"')], addedLine: true },
+    { num: 12, segs: [n('    '), k('"predeploy"'), n(": "), a('"npm run build"'), n(",")], addedLine: true, copyText: `"predeploy": "npm run build",` },
+    { num: 13, segs: [n('    '), k('"deploy"'),  n(": "), a('"gh-pages -d dist"')], addedLine: true, copyText: `"deploy": "gh-pages -d dist"` },
     { num: 14, segs: [n("  },")] },
     { num: 15, segs: [n("  "), k('"dependencies"'), n(": {")] },
     { num: 16, segs: [n('    '), k('"react"'),     n(': "^18.3.1",')] },
@@ -107,7 +108,7 @@ function makeVitePackageRows(cfg: ProjectConfig): CodeRow[] {
     { num: 18, segs: [n("  },")] },
     { num: 19, segs: [n("  "), k('"devDependencies"'), n(": {")] },
     { num: 20, segs: [n('    '), k('"@vitejs/plugin-react"'), n(': "^4.3.1",')] },
-    { num: 21, segs: [n('    '), k('"gh-pages"'), n(": "), a('"^6.1.1"'), n(",")], addedLine: true },
+    { num: 21, segs: [n('    '), k('"gh-pages"'), n(": "), a('"^6.1.1"'), n(",")], addedLine: true, copyText: `"gh-pages": "^6.1.1",` },
     { num: 22, segs: [n('    '), k('"typescript"'), n(': "^5.5.3",')] },
     { num: 23, segs: [n('    '), k('"vite"'), n(': "^5.4.1"')] },
     { num: 24, segs: [n("  }")] },
@@ -124,7 +125,7 @@ function makeViteConfigRows(cfg: ProjectConfig): CodeRow[] {
     { num: 4, segs: [c("// https://vitejs.dev/config/")] },
     { num: 5, segs: [n("export default defineConfig({")] },
     { num: 6, segs: [n("  plugins: [react()],")] },
-    { num: 7, segs: [n("  "), k("base"), n(": "), h(`'${base}'`), n(",")], addedLine: true },
+    { num: 7, segs: [n("  "), k("base"), n(": "), h(`'${base}'`), n(",")], addedLine: true, copyText: `base: '${base}',` },
     { num: 8, segs: [n("})")] },
   ];
 }
@@ -141,14 +142,14 @@ function makeNextPackageRows(cfg: ProjectConfig): CodeRow[] {
     { num: 1,  segs: [n("{")] },
     { num: 2,  segs: [n("  "), k('"name"'),    n(`: "${name}",`)] },
     { num: 3,  segs: [n("  "), k('"version"'), n(': "0.0.0",')] },
-    { num: 4,  segs: [n("  "), k('"homepage"'), n(": "), h(`"${homepage}"`), n(",")], addedLine: true },
+    { num: 4,  segs: [n("  "), k('"homepage"'), n(": "), h(`"${homepage}"`), n(",")], addedLine: true, copyText: `"homepage": "${homepage}",` },
     { num: 5,  segs: [n("  "), k('"scripts"'), n(": {")] },
     { num: 6,  segs: [n('    '), k('"dev"'),   n(': "next dev",')] },
     { num: 7,  segs: [n('    '), k('"build"'), n(': "next build",')] },
     { num: 8,  segs: [n('    '), k('"start"'), n(': "next start",')] },
     { num: 9,  segs: [n('    '), k('"lint"'),  n(': "next lint",')] },
-    { num: 10, segs: [n('    '), k('"predeploy"'), n(": "), a('"next build && node -e \\"require(\'fs\').writeFileSync(\'out/.nojekyll\',\'\')\\"" '), n(",")], addedLine: true },
-    { num: 11, segs: [n('    '), k('"deploy"'), n(": "), a('"gh-pages -d out --dotfiles"')], addedLine: true },
+    { num: 10, segs: [n('    '), k('"predeploy"'), n(": "), a('"next build && node -e \\"require(\'fs\').writeFileSync(\'out/.nojekyll\',\'\')\\"" '), n(",")], addedLine: true, copyText: `"predeploy": "next build && node -e \\"require('fs').writeFileSync('out/.nojekyll','')\\""` },
+    { num: 11, segs: [n('    '), k('"deploy"'), n(": "), a('"gh-pages -d out --dotfiles"')], addedLine: true, copyText: `"deploy": "gh-pages -d out --dotfiles"` },
     { num: 12, segs: [n("  },")] },
     { num: 13, segs: [n("  "), k('"dependencies"'), n(": {")] },
     { num: 14, segs: [n('    '), k('"next"'),      n(': "^14.2.0",')] },
@@ -159,7 +160,7 @@ function makeNextPackageRows(cfg: ProjectConfig): CodeRow[] {
     { num: 19, segs: [n('    '), k('"@types/node"'),      n(': "^20.0.0",')] },
     { num: 20, segs: [n('    '), k('"@types/react"'),     n(': "^18.3.3",')] },
     { num: 21, segs: [n('    '), k('"@types/react-dom"'), n(': "^18.3.0",')] },
-    { num: 22, segs: [n('    '), k('"gh-pages"'), n(": "), a('"^6.1.1"'), n(",")], addedLine: true },
+    { num: 22, segs: [n('    '), k('"gh-pages"'), n(": "), a('"^6.1.1"'), n(",")], addedLine: true, copyText: `"gh-pages": "^6.1.1",` },
     { num: 23, segs: [n('    '), k('"typescript"'), n(': "^5.5.3"')] },
     { num: 24, segs: [n("  }")] },
     { num: 25, segs: [n("}")] },
@@ -174,15 +175,15 @@ function makeNextConfigRows(cfg: ProjectConfig): CodeRow[] {
     { num: 2,  segs: [] },
     { num: 3,  segs: [n("const nextConfig: NextConfig = {")] },
     { num: 4,  segs: [c("  // 정적 HTML 파일로 내보내기 (GitHub Pages 필수)"), ] },
-    { num: 5,  segs: [n("  "), k("output"), n(": "), a("'export'"), n(",")], addedLine: true },
+    { num: 5,  segs: [n("  "), k("output"), n(": "), a("'export'"), n(",")], addedLine: true, copyText: `output: 'export',` },
     { num: 6,  segs: [] },
     { num: 7,  segs: [c("  // 저장소 이름을 경로 앞에 붙임")] },
-    { num: 8,  segs: [n("  "), k("basePath"), n(": "), h(`'${basePath}'`), n(",")], addedLine: true },
-    { num: 9,  segs: [n("  "), k("assetPrefix"), n(": "), h(`'${assetPrefix}'`), n(",")], addedLine: true },
+    { num: 8,  segs: [n("  "), k("basePath"), n(": "), h(`'${basePath}'`), n(",")], addedLine: true, copyText: `basePath: '${basePath}',` },
+    { num: 9,  segs: [n("  "), k("assetPrefix"), n(": "), h(`'${assetPrefix}'`), n(",")], addedLine: true, copyText: `assetPrefix: '${assetPrefix}',` },
     { num: 10, segs: [] },
     { num: 11, segs: [c("  // Next.js Image 최적화는 정적 내보내기에서 미지원")]},
     { num: 12, segs: [n("  "), k("images"), n(": {")], addedLine: true },
-    { num: 13, segs: [n("    "), k("unoptimized"), n(": "), a("true"), n(",")], addedLine: true },
+    { num: 13, segs: [n("    "), k("unoptimized"), n(": "), a("true"), n(",")], addedLine: true, copyText: `unoptimized: true,` },
     { num: 14, segs: [n("  },")], addedLine: true },
     { num: 15, segs: [n("}")] },
     { num: 16, segs: [] },
@@ -273,6 +274,32 @@ function CopyButton({ text }: { text: string }) {
 }
 
 /* ─────────────────────────────────────────
+   인라인 복사 버튼 (작은 버전)
+───────────────────────────────────────── */
+function InlineCopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = useCallback(async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }, [text]);
+  return (
+    <button
+      onClick={handleCopy}
+      className={`inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded transition-all duration-150 ml-2
+        ${copied
+          ? "bg-green-500/30 text-green-300"
+          : "bg-slate-600/50 text-slate-400 hover:bg-slate-500/60 hover:text-slate-200"
+        }`}
+      title="이 줄만 복사"
+    >
+      {copied ? <Check size={10} /> : <Copy size={10} />}
+    </button>
+  );
+}
+
+/* ─────────────────────────────────────────
    코드 패널
 ───────────────────────────────────────── */
 function CodePanel({ label, rows }: { label: string; rows: CodeRow[] }) {
@@ -298,10 +325,15 @@ function CodePanel({ label, rows }: { label: string; rows: CodeRow[] }) {
                   {row.num ?? ""}
                 </td>
                 <td className="pl-4 sm:pl-5 pr-4 py-1 whitespace-pre leading-relaxed">
-                  {row.segs.length === 0
-                    ? <span>&nbsp;</span>
-                    : row.segs.map((s, si) => renderSeg(s, si))
-                  }
+                  <div className="flex items-center">
+                    <span className="flex-1">
+                      {row.segs.length === 0
+                        ? <span>&nbsp;</span>
+                        : row.segs.map((s, si) => renderSeg(s, si))
+                      }
+                    </span>
+                    {row.copyText && <InlineCopyButton text={row.copyText} />}
+                  </div>
                 </td>
               </tr>
             ))}
